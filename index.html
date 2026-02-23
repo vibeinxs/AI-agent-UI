@@ -275,7 +275,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 
   <button class="btn-go" onclick="runAnalysis()">
     Analyse Now
-    <span class="mbadge" id="btnBadge">Local Mode</span>
+    <span class="mbadge" id="btnBadge">Instant</span>
   </button>
 </aside>
 
@@ -288,7 +288,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
     <div class="chips">
       <span class="chip">AfA §7 EStG</span><span class="chip">IRR 10/15/20yr</span>
       <span class="chip">Bodenrichtwert</span><span class="chip">Mietspiegel</span>
-      <span class="chip">Claude · GPT-4o · Ollama</span>
+      <span class="chip">Instant · AI Analysis · AI Analysis Lite · Private AI</span>
     </div>
   </div>
 
@@ -360,7 +360,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
     <div class="tpanel" id="tp-ai">
       <div class="card">
         <div class="ch"><span class="ct">Expert Analysis</span><span class="ctag" id="aiBadge">—</span></div>
-        <div class="aitext" id="aiText">No AI model configured. Click ⚙ Settings to add an API key or connect Ollama.</div>
+        <div class="aitext" id="aiText">No analysis mode configured. Click ⚙ Settings to add your connection details.</div>
       </div>
     </div>
 
@@ -397,27 +397,25 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
   <div class="modal">
     <div class="mh"><span class="mhttl">AI Model Settings</span><button class="mclose" onclick="closeSettings()">✕</button></div>
     <div class="mbody">
-      <div class="mseclabel">Choose AI Provider</div>
-      <div class="mopt" id="opt_local"  onclick="selModel('local')"><div class="micon">💻</div><div class="minfo"><div class="mname">Local Mode</div><div class="mdesc">Calculations only · No AI commentary · Instant</div></div><div class="mradio" id="r_local"></div></div>
-      <div class="mopt" id="opt_claude" onclick="selModel('claude')"><div class="micon">🤖</div><div class="minfo"><div class="mname">Claude (Anthropic)</div><div class="mdesc">claude-opus-4-6 · Best analysis quality</div></div><div class="mradio" id="r_claude"></div></div>
-      <div class="mopt" id="opt_openai" onclick="selModel('openai')"><div class="micon">⚡</div><div class="minfo"><div class="mname">OpenAI GPT-4o</div><div class="mdesc">GPT-4o or GPT-4o-mini · Fast and capable</div></div><div class="mradio" id="r_openai"></div></div>
-      <div class="mopt" id="opt_ollama" onclick="selModel('ollama')"><div class="micon">🦙</div><div class="minfo"><div class="mname">Ollama (Local LLM)</div><div class="mdesc">Run Llama3, Mistral, Gemma on your own machine · Free · Private</div></div><div class="mradio" id="r_ollama"></div></div>
+      <div class="mseclabel">Choose Analysis Mode</div>
+      <div class="mopt" id="opt_local"  onclick="selModel('local')"><div class="micon">💻</div><div class="minfo"><div class="mname">Instant</div><div class="mdesc">Calculations only · No AI commentary</div></div><div class="mradio" id="r_local"></div></div>
+      <div class="mopt" id="opt_claude" onclick="selModel('claude')"><div class="micon">🤖</div><div class="minfo"><div class="mname">AI Analysis</div><div class="mdesc">Enhanced quality analysis</div></div><div class="mradio" id="r_claude"></div></div>
+      <div class="mopt" id="opt_openai" onclick="selModel('openai')"><div class="micon">⚡</div><div class="minfo"><div class="mname">AI Analysis Lite</div><div class="mdesc">Faster analysis response</div></div><div class="mradio" id="r_openai"></div></div>
+      <div class="mopt" id="opt_ollama" onclick="selModel('ollama')"><div class="micon">🧠</div><div class="minfo"><div class="mname">Private AI</div><div class="mdesc">Run analysis with your own setup</div></div><div class="mradio" id="r_ollama"></div></div>
 
       <div class="minpgrp" id="inp_claude" style="display:none">
-        <div class="minprow"><label>API Key</label><input id="claude_key" type="password" placeholder="sk-ant-api03-…"></div>
+        <div class="minprow"><label>API Key</label><input id="claude_key" type="password" placeholder="sk-live-…"></div>
         <div class="minprow"><label>Backend URL</label><input id="backend_url" type="text" placeholder="https://your-app.railway.app (optional)"></div>
       </div>
       <div class="minpgrp" id="inp_openai" style="display:none">
         <div class="minprow"><label>API Key</label><input id="openai_key" type="password" placeholder="sk-…"></div>
-        <div class="minprow"><label>Model</label><select id="openai_model"><option value="gpt-4o">gpt-4o</option><option value="gpt-4o-mini">gpt-4o-mini (faster)</option><option value="gpt-4-turbo">gpt-4-turbo</option></select></div>
+        <div class="minprow"><label>Profile</label><select id="openai_model"><option value="standard">Standard</option><option value="fast">Fast</option><option value="legacy">Legacy</option></select></div>
       </div>
       <div class="minpgrp" id="inp_ollama" style="display:none">
-        <div class="minprow"><label>Ollama URL</label><input id="ollama_url" type="text" placeholder="http://localhost:11434" value="http://localhost:11434"></div>
-        <div class="minprow"><label>Model name</label><input id="ollama_model" type="text" placeholder="llama3, mistral, gemma3…" value="llama3"></div>
+        <div class="minprow"><label>Connection URL</label><input id="ollama_url" type="text" placeholder="http://localhost:11434" value="http://localhost:11434"></div>
+        <div class="minprow"><label>Configuration name</label><input id="ollama_model" type="text" placeholder="private-analysis" value="private-analysis"></div>
         <div style="font-size:11.5px;color:var(--t2);margin-top:8px;line-height:1.6;padding:0 2px;">
-          💡 Install from <strong>ollama.com</strong>, then run:
-          <code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--s2);padding:2px 6px;border-radius:4px;">ollama pull llama3</code><br>
-          Make sure Ollama is running before clicking Analyse.
+          💡 Ensure your local service is running before clicking Analyse.
         </div>
       </div>
     </div>
@@ -490,7 +488,7 @@ function saveSettings() {
 }
 function updateChip() {
   const m = cfg.model||'local';
-  const lbl = m==='claude'?'Claude Opus':m==='openai'?(cfg.openai_model||'GPT-4o'):m==='ollama'?(cfg.ollama_model||'Ollama'):'Local Mode';
+  const lbl = m==='claude'?'AI Analysis':m==='openai'?'AI Analysis Lite':m==='ollama'?'Private AI':'Instant';
   const dotCls = m==='ollama'?'dot or':m==='local'?'dot gr':'dot';
   document.getElementById('chipLabel').textContent = lbl;
   document.getElementById('modelDot').className = dotCls;
@@ -566,20 +564,20 @@ async function callClaude(m,p) {
     return data.ai_analysis;
   }
   const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cfg.claude_key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-opus-4-6',max_tokens:900,system:SYS,messages:[{role:'user',content:buildPrompt(m,p)}]})});
-  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`Claude ${res.status}`);}
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`Analysis service ${res.status}`);}
   return (await res.json()).content[0].text;
 }
 async function callOpenAI(m,p) {
-  const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.openai_key},body:JSON.stringify({model:cfg.openai_model||'gpt-4o',max_tokens:900,messages:[{role:'system',content:SYS},{role:'user',content:buildPrompt(m,p)}]})});
-  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`OpenAI ${res.status}`);}
+  const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.openai_key},body:JSON.stringify({model:(cfg.openai_model==='fast'?'gpt-4o-mini':cfg.openai_model==='legacy'?'gpt-4-turbo':cfg.openai_model&&cfg.openai_model!=='standard'?cfg.openai_model:'gpt-4o'),max_tokens:900,messages:[{role:'system',content:SYS},{role:'user',content:buildPrompt(m,p)}]})});
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`Analysis service ${res.status}`);}
   return (await res.json()).choices[0].message.content;
 }
 async function callOllama(m,p) {
   const url=(cfg.ollama_url||'http://localhost:11434')+'/api/chat';
-  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:cfg.ollama_model||'llama3',stream:false,messages:[{role:'system',content:SYS},{role:'user',content:buildPrompt(m,p)}]})});
-  if(!res.ok) throw new Error(`Ollama error ${res.status}. Is Ollama running?`);
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:cfg.ollama_model||'private-analysis',stream:false,messages:[{role:'system',content:SYS},{role:'user',content:buildPrompt(m,p)}]})});
+  if(!res.ok) throw new Error(`Private AI service error ${res.status}. Is your local service running?`);
   const d=await res.json();
-  return d.message?.content||d.choices?.[0]?.message?.content||'No response from Ollama';
+  return d.message?.content||d.choices?.[0]?.message?.content||'No response from private AI service';
 }
 
 // ═══════════════════════════ RENDER ═══════════════════════════════════════
@@ -644,8 +642,8 @@ function render(d,p) {
   document.getElementById('detailTable').innerHTML=d.year_data.map(y=>`<tr><td>Yr ${y.year}</td><td>${fmt(y.rent_gross)}</td><td>${fmt(y.interest)}</td><td>${fmt(y.afa)}</td><td class="${y.tax_impact<=0?'pos':'neg'}">${y.tax_impact<=0?'+':'−'}${fmt(Math.abs(y.tax_impact))}</td><td class="${y.cash_flow>=0?'pos':'neg'}">${y.cash_flow>=0?'+':'−'}${fmt(Math.abs(y.cash_flow))}</td><td>${fmt(y.property_value)}</td></tr>`).join('');
 
   // AI tab
-  sT('aiText', d.ai_analysis||'No AI model configured. Click ⚙ Settings to add an API key or connect Ollama.');
-  sT('aiBadge', d._aiModel||'Local');
+  sT('aiText', d.ai_analysis||'No analysis mode configured. Click ⚙ Settings to add your connection details.');
+  sT('aiBadge', d._aiModel||'Instant');
 
   // Market tab
   const mi=[['Bodenrichtwert',d.bodenrichtwert_m2?`€${d.bodenrichtwert_m2}/m²`:'N/A','Official land value'],['Rent Index',d.market_rent_m2?`€${d.market_rent_m2}/m²`:'N/A','Mietspiegel'],['Mortgage Rate',d.current_mortgage_rate?`${d.current_mortgage_rate}%`:'N/A','Bundesbank 10yr'],['Location Score',d.location_score?`${d.location_score}/10`:'N/A','OSM amenity score'],['Population Trend',d.population_trend||'N/A','Annual growth'],['Address',d.address_resolved||p.address,'Geocoded']];
@@ -697,7 +695,7 @@ async function runAnalysis() {
     const p=collectForm(); cfg=(() => { try { return JSON.parse(localStorage.getItem(CFGK))||{}; } catch { return {}; }})();
     const m=cfg.model||'local', result=localCompute(p);
     if(m!=='local') {
-      result._aiModel=m==='claude'?'Claude Opus':m==='openai'?(cfg.openai_model||'GPT-4o'):(cfg.ollama_model||'Ollama');
+      result._aiModel=m==='claude'?'AI Analysis':m==='openai'?'AI Analysis Lite':'Private AI';
       result._dataSource=m==='claude'&&cfg.backend_url?'Live API':'Local calc + AI';
       try {
         if(m==='claude') result.ai_analysis=await callClaude(result,p);
