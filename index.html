@@ -430,10 +430,13 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 
 <script>
 // ═══════════════════════════ CONFIG ═══════════════════════════════════════
-const CFGK = 'immoagent_v3';
-let cfg = (() => { try { return JSON.parse(localStorage.getItem(CFGK))||{}; } catch { return {}; }})();
-let selMdl = cfg.model||'local';
 
+
+const CFGK = 'immoagent_v3';
+const DEFAULTS = { model: 'claude', backend_url: 'https://web-production-61c120.up.railway.app' };
+let cfg = (() => { try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(CFGK))||{}); } catch { return DEFAULTS; }})();
+let selMdl = cfg.model||'local';
+  
 function openSettings() {
   cfg = (() => { try { return JSON.parse(localStorage.getItem(CFGK))||{}; } catch { return {}; }})();
   selMdl = cfg.model||'local';
