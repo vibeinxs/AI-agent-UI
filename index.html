@@ -46,6 +46,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .frow{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);transition:background .1s;}
 .frow:last-child{border-bottom:none;}
 .frow:focus-within{background:rgba(0,113,227,.04);}
+.frow.stack{flex-direction:column;align-items:stretch;gap:6px;}
 .frow.tw{gap:0;}
 .fhalf{flex:1;display:flex;align-items:center;gap:8px;}
 .fhalf+.fhalf{border-left:1px solid var(--border);padding-left:12px;}
@@ -54,6 +55,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .finp{background:none;border:none;outline:none;font-family:"DM Mono",monospace;font-size:13px;font-weight:500;color:var(--text);text-align:right;width:80px;}
 .finp::-webkit-inner-spin-button,.finp::-webkit-outer-spin-button{-webkit-appearance:none;}
 .funit{font-size:11.5px;color:var(--t3);font-family:"DM Mono",monospace;flex-shrink:0;}
+.fhint{font-size:11px;color:var(--t3);line-height:1.4;}
+.fwarn{font-size:11px;color:var(--orange);line-height:1.4;display:none;}
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
@@ -278,6 +281,17 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
           <input type="radio" name="vac" id="v5"><label for="v5">5%</label>
           <input type="radio" name="vac" id="v8"><label for="v8">8%</label>
         </div>
+      </div>
+      <div class="frow tw">
+        <div class="fhalf"><span class="flb">Special AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox"></div>
+        <div class="fhalf"><span class="flb">Years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" style="width:40px;"><span class="funit">yr</span></div>
+      </div>
+      <div class="frow stack">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="flb">Special AfA rate</span><span class="fsp"></span><input id="f_special_afa_rate" class="finp" type="number" placeholder="0.05 or 5" style="width:62px;">
+        </div>
+        <div class="fhint">Valid effective range: 0 to 7% (values &gt; 1 are interpreted as percent, e.g. 5 → 5%).</div>
+        <div class="fwarn" id="f_special_afa_warn">⚠ Special AfA effective rate is outside 0 to 7%.</div>
       </div>
     </div>
   </div>
@@ -690,8 +704,24 @@ function collectForm() {
     throw new Error('AfA rate must be between 0 and 0.07, or left blank for the default rate.');
   }
   const v=document.querySelector('input[name="vac"]:checked');
-  return {address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:afaRateInput};
+  const specialAfaYearsRaw=document.getElementById('f_special_afa_years').value.trim();
+  const specialAfaRateRaw=document.getElementById('f_special_afa_rate').value.trim();
+  return {address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:afaRateInput,special_afa_enabled:document.getElementById('f_special_afa_enabled').checked,special_afa_years:specialAfaYearsRaw===''?null:parseInt(specialAfaYearsRaw),special_afa_rate_input:specialAfaRateRaw===''?null:parseFloat(specialAfaRateRaw)};
 }
+
+function updateSpecialAfaWarning() {
+  const enabled=document.getElementById('f_special_afa_enabled').checked;
+  const warnEl=document.getElementById('f_special_afa_warn');
+  const raw=document.getElementById('f_special_afa_rate').value.trim();
+  if(!enabled||raw==='') { warnEl.style.display='none'; return; }
+  const parsed=parseFloat(raw);
+  if(Number.isNaN(parsed)) { warnEl.style.display='none'; return; }
+  const effectiveRate=parsed>1?parsed/100:parsed;
+  warnEl.style.display=effectiveRate<0||effectiveRate>0.07?'block':'none';
+}
+
+document.getElementById('f_special_afa_enabled').addEventListener('change', updateSpecialAfaWarning);
+document.getElementById('f_special_afa_rate').addEventListener('input', updateSpecialAfaWarning);
 
 const STEPS=['Computing closing costs…','Building AfA schedule…','Running amortisation table…','Calculating taxable income…','Computing IRR…','Calling AI model…'];
 
