@@ -56,7 +56,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .finp::-webkit-inner-spin-button,.finp::-webkit-outer-spin-button{-webkit-appearance:none;}
 .funit{font-size:11.5px;color:var(--t3);font-family:"DM Mono",monospace;flex-shrink:0;}
 .fhint{font-size:11px;color:var(--t3);line-height:1.4;}
-.fwarn{font-size:11px;color:var(--orange);line-height:1.4;display:none;}
+.ferr{font-size:11px;color:var(--red);line-height:1.4;display:none;}
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
@@ -271,7 +271,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
             <option value="degressive">Degressive</option>
           </select>
         </div>
-        <div class="fhalf"><span class="flb">AfA rate</span><span class="fsp"></span><input id="f_afa_rate" class="finp" type="number" min="0" max="0.07" step="0.001" placeholder="default" style="width:58px;"><span class="funit">0–0.07</span></div>
+        <div class="fhalf"><span class="flb">Base AfA</span><span class="fsp"></span><input id="f_afa_enabled" type="checkbox" checked></div>
+      </div>
+      <div class="frow stack">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="flb">AfA rate</span><span class="fsp"></span><input id="f_afa_rate" class="finp" type="text" placeholder="default, 0.05 or 5" style="width:120px;"><span class="funit">0–0.07 effective</span>
+        </div>
+        <div class="fhint">Valid effective range: 0 to 7% (values &gt; 1 are interpreted as percent, e.g. 5 → 5%).</div>
+        <div class="ferr" id="f_afa_error">Base AfA effective rate must be between 0 and 7%.</div>
       </div>
       <div class="frow" style="flex-direction:column;align-items:stretch;gap:8px;">
         <span class="flb">Vacancy</span>
@@ -288,10 +295,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
       </div>
       <div class="frow stack">
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="flb">Special AfA rate</span><span class="fsp"></span><input id="f_special_afa_rate" class="finp" type="number" placeholder="0.05 or 5" style="width:62px;">
+          <span class="flb">Special AfA rate</span><span class="fsp"></span><input id="f_special_afa_rate" class="finp" type="text" placeholder="0.05 or 5" style="width:62px;">
         </div>
         <div class="fhint">Valid effective range: 0 to 7% (values &gt; 1 are interpreted as percent, e.g. 5 → 5%).</div>
-        <div class="fwarn" id="f_special_afa_warn">⚠ Special AfA effective rate is outside 0 to 7%.</div>
+        <div class="ferr" id="f_special_afa_error">Special AfA effective rate must be between 0 and 7%.</div>
       </div>
     </div>
   </div>
@@ -696,32 +703,65 @@ function sw(btn,id) {
 }
 
 // ═══════════════════════════ FORM ═════════════════════════════════════════
+function parseRateInput(raw) {
+  if(raw==='') return { provided:false, parsed:null, effective:null, valid:true };
+  const parsed=parseFloat(raw);
+  if(Number.isNaN(parsed)) return { provided:true, parsed:null, effective:null, valid:false };
+  const effective=parsed>1?parsed/100:parsed;
+  return { provided:true, parsed, effective, valid:effective>=0&&effective<=0.07 };
+}
+
+function syncAfaUiState() {
+  const baseEnabled=document.getElementById('f_afa_enabled').checked;
+  document.getElementById('f_afa_rate').disabled=!baseEnabled;
+  if(!baseEnabled) document.getElementById('f_afa_error').style.display='none';
+}
+
+function validateAfaRates() {
+  let ok=true;
+  const baseEnabled=document.getElementById('f_afa_enabled').checked;
+  const baseRate=parseRateInput(document.getElementById('f_afa_rate').value.trim());
+  const baseErr=document.getElementById('f_afa_error');
+  baseErr.style.display=baseEnabled&&baseRate.provided&&!baseRate.valid?'block':'none';
+  if(baseEnabled&&baseRate.provided&&!baseRate.valid) ok=false;
+
+  const specialEnabled=document.getElementById('f_special_afa_enabled').checked;
+  const specialRate=parseRateInput(document.getElementById('f_special_afa_rate').value.trim());
+  const specialErr=document.getElementById('f_special_afa_error');
+  specialErr.style.display=specialEnabled&&specialRate.provided&&!specialRate.valid?'block':'none';
+  if(specialEnabled&&specialRate.provided&&!specialRate.valid) ok=false;
+
+  return ok;
+}
+
 function collectForm() {
-  const afaRateEl=document.getElementById('f_afa_rate');
-  const afaRateRaw=afaRateEl.value.trim();
-  const afaRateInput=afaRateRaw===''?null:parseFloat(afaRateRaw);
-  if(afaRateRaw!==''&&(Number.isNaN(afaRateInput)||afaRateInput<0||afaRateInput>0.07)) {
-    throw new Error('AfA rate must be between 0 and 0.07, or left blank for the default rate.');
+  if(!validateAfaRates()) {
+    throw new Error('Please correct AfA rate inputs (effective values must be between 0 and 7%).');
   }
+
+  const baseEnabled=document.getElementById('f_afa_enabled').checked;
+  const afaRateRaw=document.getElementById('f_afa_rate').value.trim();
+  const afaRateInput=afaRateRaw===''?null:parseFloat(afaRateRaw);
   const v=document.querySelector('input[name="vac"]:checked');
+  const specialEnabled=document.getElementById('f_special_afa_enabled').checked;
   const specialAfaYearsRaw=document.getElementById('f_special_afa_years').value.trim();
   const specialAfaRateRaw=document.getElementById('f_special_afa_rate').value.trim();
-  return {address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:afaRateInput,special_afa_enabled:document.getElementById('f_special_afa_enabled').checked,special_afa_years:specialAfaYearsRaw===''?null:parseInt(specialAfaYearsRaw),special_afa_rate_input:specialAfaRateRaw===''?null:parseFloat(specialAfaRateRaw)};
+
+  const payload={address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:baseEnabled?afaRateInput:0,special_afa_enabled:specialEnabled};
+
+  if(specialEnabled) {
+    payload.special_afa_years=specialAfaYearsRaw===''?null:parseInt(specialAfaYearsRaw);
+    payload.special_afa_rate_input=specialAfaRateRaw===''?null:parseFloat(specialAfaRateRaw);
+  }
+
+  return payload;
 }
 
-function updateSpecialAfaWarning() {
-  const enabled=document.getElementById('f_special_afa_enabled').checked;
-  const warnEl=document.getElementById('f_special_afa_warn');
-  const raw=document.getElementById('f_special_afa_rate').value.trim();
-  if(!enabled||raw==='') { warnEl.style.display='none'; return; }
-  const parsed=parseFloat(raw);
-  if(Number.isNaN(parsed)) { warnEl.style.display='none'; return; }
-  const effectiveRate=parsed>1?parsed/100:parsed;
-  warnEl.style.display=effectiveRate<0||effectiveRate>0.07?'block':'none';
-}
-
-document.getElementById('f_special_afa_enabled').addEventListener('change', updateSpecialAfaWarning);
-document.getElementById('f_special_afa_rate').addEventListener('input', updateSpecialAfaWarning);
+document.getElementById('f_afa_enabled').addEventListener('change', ()=>{syncAfaUiState();validateAfaRates();});
+document.getElementById('f_afa_rate').addEventListener('input', validateAfaRates);
+document.getElementById('f_special_afa_enabled').addEventListener('change', validateAfaRates);
+document.getElementById('f_special_afa_rate').addEventListener('input', validateAfaRates);
+syncAfaUiState();
 
 const STEPS=['Computing closing costs…','Building AfA schedule…','Running amortisation table…','Calculating taxable income…','Computing IRR…','Calling AI model…'];
 
