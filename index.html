@@ -61,7 +61,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .ferr{font-size:11px;color:var(--red);line-height:1.4;display:none;}
 .afa-line{display:flex;align-items:center;gap:12px;min-width:0;width:100%;}
 .afa-label{white-space:normal;line-height:1.25;max-width:170px;}
-.afa-value{font-size:11px;color:var(--blue);font-family:"DM Mono",monospace;background:rgba(0,113,227,.09);padding:2px 6px;border-radius:6px;flex-shrink:0;}
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
@@ -282,9 +281,10 @@ input[type=range]{width:100%;min-width:0;flex:1 1 auto;}
       <div class="frow stack">
         <div class="afa-line">
           <span class="flb afa-label">AfA (Absetzung für Abnutzung)</span><span class="fsp"></span>
-          <input id="f_afa_rate" type="range" min="0" max="7" step="0.1" value="2.0" style="flex:1;">
-          <span class="afa-value" id="f_afa_rate_value">2.0%</span>
+          <input id="f_afa_rate" class="finp" type="number" min="0" max="7" step="0.1" value="2.0" style="width:72px;">
+          <span class="funit">%</span>
         </div>
+        <div class="fhint">Range: 0–7%</div>
       </div>
       <div class="frow">
         <span class="flb">Sonder-AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox">
@@ -292,9 +292,10 @@ input[type=range]{width:100%;min-width:0;flex:1 1 auto;}
       <div id="specialAfaBlock" class="frow stack" style="display:none;">
         <div class="afa-line">
           <span class="flb afa-label">Sonder-AfA rate (Sonderabschreibung)</span><span class="fsp"></span>
-          <input id="f_special_afa_rate" type="range" min="0" max="7" step="0.1" value="0" style="flex:1;">
-          <span class="afa-value" id="f_special_afa_rate_value">0.0%</span>
+          <input id="f_special_afa_rate" class="finp" type="number" min="0" max="7" step="0.1" value="0.0" style="width:72px;">
+          <span class="funit">%</span>
         </div>
+        <div class="fhint">Range: 0–7%</div>
         <div class="afa-line">
           <span class="flb">Sonder-AfA years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" max="4" step="1" style="width:72px;"><span class="funit">yr</span>
         </div>
@@ -725,11 +726,6 @@ function sw(btn,id) {
 }
 
 // ═══════════════════════════ FORM ═════════════════════════════════════════
-function syncAfaSliderValues() {
-  document.getElementById('f_afa_rate_value').textContent=`${parseFloat(document.getElementById('f_afa_rate').value).toFixed(1)}%`;
-  document.getElementById('f_special_afa_rate_value').textContent=`${parseFloat(document.getElementById('f_special_afa_rate').value).toFixed(1)}%`;
-}
-
 function syncSpecialAfaUi() {
   const enabled=document.getElementById('f_special_afa_enabled').checked;
   const block=document.getElementById('specialAfaBlock');
@@ -740,17 +736,21 @@ function syncSpecialAfaUi() {
 }
 
 function validateAfaInputs() {
+  const baseRate=Number(document.getElementById('f_afa_rate').value);
   const enabled=document.getElementById('f_special_afa_enabled').checked;
+  const specialRate=Number(document.getElementById('f_special_afa_rate').value);
   const yearsRaw=document.getElementById('f_special_afa_years').value.trim();
-  const years=yearsRaw===''?NaN:parseInt(yearsRaw);
-  const yearsInvalid=enabled&&(Number.isNaN(years)||years<1||years>4);
-  document.getElementById('f_special_afa_error').style.display=yearsInvalid?'block':'none';
-  return !yearsInvalid;
+  const years=yearsRaw===''?NaN:parseInt(yearsRaw,10);
+  const invalidBase=Number.isNaN(baseRate)||baseRate<0||baseRate>7;
+  const invalidSpecialRate=enabled&&(Number.isNaN(specialRate)||specialRate<0||specialRate>7);
+  const invalidYears=enabled&&(Number.isNaN(years)||years<1||years>4);
+  document.getElementById('f_special_afa_error').style.display=(invalidSpecialRate||invalidYears)?'block':'none';
+  return !invalidBase&&!invalidSpecialRate&&!invalidYears;
 }
 
 function collectForm() {
   if(!validateAfaInputs()) {
-    throw new Error('Please correct Sonder-AfA years (must be 1 to 4).');
+    throw new Error('Please correct AfA/Sonder-AfA inputs (rates 0–7%, years 1–4).');
   }
 
   const v=document.querySelector('input[name="vac"]:checked');
@@ -765,11 +765,10 @@ function collectForm() {
   return payload;
 }
 
-document.getElementById('f_afa_rate').addEventListener('input', syncAfaSliderValues);
-document.getElementById('f_special_afa_rate').addEventListener('input', syncAfaSliderValues);
+document.getElementById('f_afa_rate').addEventListener('input', validateAfaInputs);
+document.getElementById('f_special_afa_rate').addEventListener('input', validateAfaInputs);
 document.getElementById('f_special_afa_enabled').addEventListener('change', ()=>{syncSpecialAfaUi();validateAfaInputs();});
 document.getElementById('f_special_afa_years').addEventListener('input', validateAfaInputs);
-syncAfaSliderValues();
 syncSpecialAfaUi();
 
 const STEPS=['Computing closing costs…','Building AfA schedule…','Running amortisation table…','Calculating taxable income…','Computing IRR…','Calling AI model…'];
