@@ -307,6 +307,17 @@ input[type=range]{width:100%;min-width:0;flex:1;}
           <input type="radio" name="vac" id="v8"><label for="v8">8%</label>
         </div>
       </div>
+      <div class="frow tw">
+        <div class="fhalf"><span class="flb">Special AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox"></div>
+        <div class="fhalf"><span class="flb">Years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" style="width:40px;"><span class="funit">yr</span></div>
+      </div>
+      <div class="frow stack">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="flb">Special AfA rate</span><span class="fsp"></span><input id="f_special_afa_rate" class="finp" type="number" placeholder="0.05 or 5" style="width:62px;">
+        </div>
+        <div class="fhint">Valid effective range: 0 to 7% (values &gt; 1 are interpreted as percent, e.g. 5 → 5%).</div>
+        <div class="fwarn" id="f_special_afa_warn">⚠ Special AfA effective rate is outside 0 to 7%.</div>
+      </div>
     </div>
   </div>
 
