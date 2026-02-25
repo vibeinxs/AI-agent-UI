@@ -64,6 +64,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
+input[type=range]{width:100%;min-width:0;flex:1 1 auto;}
+
 .seg label{flex:1;text-align:center;font-size:12px;font-weight:500;color:var(--t2);padding:5px 2px;border-radius:8px;cursor:pointer;transition:all .18s;user-select:none;}
 .seg input[type=radio]:checked+label{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12);}
 .btn-go{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 40px);margin:16px 20px 20px;padding:13px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;letter-spacing:-.1px;}
@@ -307,6 +309,17 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
           <input type="radio" name="vac" id="v5"><label for="v5">5%</label>
           <input type="radio" name="vac" id="v8"><label for="v8">8%</label>
         </div>
+      </div>
+      <div class="frow tw">
+        <div class="fhalf"><span class="flb">Special AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox"></div>
+        <div class="fhalf"><span class="flb">Years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" style="width:40px;"><span class="funit">yr</span></div>
+      </div>
+      <div class="frow stack">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="flb">Special AfA rate</span><span class="fsp"></span><input id="f_special_afa_rate" class="finp" type="number" placeholder="0.05 or 5" style="width:62px;">
+        </div>
+        <div class="fhint">Valid effective range: 0 to 7% (values &gt; 1 are interpreted as percent, e.g. 5 → 5%).</div>
+        <div class="fwarn" id="f_special_afa_warn">⚠ Special AfA effective rate is outside 0 to 7%.</div>
       </div>
     </div>
   </div>
