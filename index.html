@@ -43,23 +43,30 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .fsec{padding:16px 20px 4px;}
 .flabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:10px;}
 .fgroup{background:var(--s2);border-radius:var(--r);overflow:hidden;}
-.frow{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);transition:background .1s;}
+.assumptions-group{overflow:visible;}
+.assumptions-group .flb{white-space:normal;}
+.frow{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);transition:background .1s;min-width:0;}
 .frow:last-child{border-bottom:none;}
 .frow:focus-within{background:rgba(0,113,227,.04);}
 .frow.stack{flex-direction:column;align-items:stretch;gap:6px;}
 .frow.tw{gap:0;}
-.fhalf{flex:1;display:flex;align-items:center;gap:8px;}
+.fhalf{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .fhalf+.fhalf{border-left:1px solid var(--border);padding-left:12px;}
 .flb{font-size:12.5px;color:var(--t2);flex-shrink:0;white-space:nowrap;}
-.fsp{flex:1;}
+.fsp{flex:1;min-width:0;}
 .finp{background:none;border:none;outline:none;font-family:"DM Mono",monospace;font-size:13px;font-weight:500;color:var(--text);text-align:right;width:80px;}
 .finp::-webkit-inner-spin-button,.finp::-webkit-outer-spin-button{-webkit-appearance:none;}
 .funit{font-size:11.5px;color:var(--t3);font-family:"DM Mono",monospace;flex-shrink:0;}
 .fhint{font-size:11px;color:var(--t3);line-height:1.4;}
 .ferr{font-size:11px;color:var(--red);line-height:1.4;display:none;}
+.afa-line{display:flex;align-items:center;gap:12px;min-width:0;width:100%;}
+.afa-label{white-space:normal;line-height:1.25;max-width:170px;}
+.afa-value{font-size:11px;color:var(--blue);font-family:"DM Mono",monospace;background:rgba(0,113,227,.09);padding:2px 6px;border-radius:6px;flex-shrink:0;}
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
+input[type=range]{width:100%;min-width:0;flex:1 1 auto;}
+
 .seg label{flex:1;text-align:center;font-size:12px;font-weight:500;color:var(--t2);padding:5px 2px;border-radius:8px;cursor:pointer;transition:all .18s;user-select:none;}
 .seg input[type=radio]:checked+label{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12);}
 .btn-go{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 40px);margin:16px 20px 20px;padding:13px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;letter-spacing:-.1px;}
@@ -255,7 +262,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
   </div>
 
   <div class="fsec"><div class="flabel">Assumptions</div>
-    <div class="fgroup">
+    <div class="fgroup assumptions-group">
       <div class="frow tw">
         <div class="fhalf"><span class="flb">Rent growth</span><span class="fsp"></span><input id="f_rentgrowth" class="finp" type="number" value="2.0" step="0.1" style="width:40px;"><span class="funit">%</span></div>
         <div class="fhalf"><span class="flb">Appreciation</span><span class="fsp"></span><input id="f_appreciation" class="finp" type="number" value="2.0" step="0.1" style="width:40px;"><span class="funit">%</span></div>
@@ -273,23 +280,23 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
         </div>
       </div>
       <div class="frow stack">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="flb">AfA (Absetzung für Abnutzung)</span><span class="fsp"></span>
+        <div class="afa-line">
+          <span class="flb afa-label">AfA (Absetzung für Abnutzung)</span><span class="fsp"></span>
           <input id="f_afa_rate" type="range" min="0" max="7" step="0.1" value="2.0" style="flex:1;">
-          <span class="funit" id="f_afa_rate_value">2.0%</span>
+          <span class="afa-value" id="f_afa_rate_value">2.0%</span>
         </div>
       </div>
       <div class="frow">
         <span class="flb">Sonder-AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox">
       </div>
       <div id="specialAfaBlock" class="frow stack" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="flb">Sonder-AfA rate (Sonderabschreibung)</span><span class="fsp"></span>
+        <div class="afa-line">
+          <span class="flb afa-label">Sonder-AfA rate (Sonderabschreibung)</span><span class="fsp"></span>
           <input id="f_special_afa_rate" type="range" min="0" max="7" step="0.1" value="0" style="flex:1;">
-          <span class="funit" id="f_special_afa_rate_value">0.0%</span>
+          <span class="afa-value" id="f_special_afa_rate_value">0.0%</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="flb">Sonder-AfA years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" max="4" step="1" style="width:40px;"><span class="funit">yr</span>
+        <div class="afa-line">
+          <span class="flb">Sonder-AfA years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" max="4" step="1" style="width:72px;"><span class="funit">yr</span>
         </div>
         <div class="ferr" id="f_special_afa_error">Sonder-AfA years must be between 1 and 4.</div>
       </div>
