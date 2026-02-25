@@ -43,20 +43,28 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .fsec{padding:16px 20px 4px;}
 .flabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:10px;}
 .fgroup{background:var(--s2);border-radius:var(--r);overflow:hidden;}
-.frow{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);transition:background .1s;}
+.frow{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);transition:background .1s;min-width:0;}
 .frow:last-child{border-bottom:none;}
 .frow:focus-within{background:rgba(0,113,227,.04);}
+.frow.stack{flex-direction:column;align-items:stretch;gap:6px;}
 .frow.tw{gap:0;}
-.fhalf{flex:1;display:flex;align-items:center;gap:8px;}
+.fhalf{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .fhalf+.fhalf{border-left:1px solid var(--border);padding-left:12px;}
 .flb{font-size:12.5px;color:var(--t2);flex-shrink:0;white-space:nowrap;}
-.fsp{flex:1;}
+.fsp{flex:1;min-width:0;}
 .finp{background:none;border:none;outline:none;font-family:"DM Mono",monospace;font-size:13px;font-weight:500;color:var(--text);text-align:right;width:80px;}
 .finp::-webkit-inner-spin-button,.finp::-webkit-outer-spin-button{-webkit-appearance:none;}
 .funit{font-size:11.5px;color:var(--t3);font-family:"DM Mono",monospace;flex-shrink:0;}
+.fhint{font-size:11px;color:var(--t3);line-height:1.4;}
+.ferr{font-size:11px;color:var(--red);line-height:1.4;display:none;}
+.afa-line{display:flex;align-items:center;gap:10px;min-width:0;width:100%;}
+.afa-label{white-space:normal;line-height:1.25;max-width:170px;}
+.afa-value{font-size:11px;color:var(--blue);font-family:"DM Mono",monospace;background:rgba(0,113,227,.09);padding:2px 6px;border-radius:6px;flex-shrink:0;}
 .fsel{background:none;border:none;outline:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;max-width:160px;text-align:right;}
 .seg{display:flex;background:var(--s2);border-radius:var(--r);padding:3px;gap:2px;}
 .seg input[type=radio]{display:none;}
+input[type=range]{width:100%;min-width:0;flex:1;}
+
 .seg label{flex:1;text-align:center;font-size:12px;font-weight:500;color:var(--t2);padding:5px 2px;border-radius:8px;cursor:pointer;transition:all .18s;user-select:none;}
 .seg input[type=radio]:checked+label{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12);}
 .btn-go{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 40px);margin:16px 20px 20px;padding:13px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;letter-spacing:-.1px;}
@@ -262,13 +270,33 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
         <div class="fhalf"><span class="flb">Horizon</span><span class="fsp"></span><input id="f_horizon" class="finp" type="number" value="10" style="width:40px;"><span class="funit">yr</span></div>
       </div>
       <div class="frow tw">
-        <div class="fhalf"><span class="flb">AfA method</span><span class="fsp"></span>
+        <div class="fhalf"><span class="flb">AfA</span><span class="fsp"></span>
           <select id="f_afa_method" class="fsel">
             <option value="linear" selected>Linear</option>
             <option value="degressive">Degressive</option>
           </select>
         </div>
-        <div class="fhalf"><span class="flb">AfA rate</span><span class="fsp"></span><input id="f_afa_rate" class="finp" type="number" min="0" max="0.07" step="0.001" placeholder="default" style="width:58px;"><span class="funit">0–0.07</span></div>
+      </div>
+      <div class="frow stack">
+        <div class="afa-line">
+          <span class="flb afa-label">AfA (Absetzung für Abnutzung)</span><span class="fsp"></span>
+          <input id="f_afa_rate" type="range" min="0" max="7" step="0.1" value="2.0" style="flex:1;">
+          <span class="afa-value" id="f_afa_rate_value">2.0%</span>
+        </div>
+      </div>
+      <div class="frow">
+        <span class="flb">Sonder-AfA</span><span class="fsp"></span><input id="f_special_afa_enabled" type="checkbox">
+      </div>
+      <div id="specialAfaBlock" class="frow stack" style="display:none;">
+        <div class="afa-line">
+          <span class="flb afa-label">Sonder-AfA rate (Sonderabschreibung)</span><span class="fsp"></span>
+          <input id="f_special_afa_rate" type="range" min="0" max="7" step="0.1" value="0" style="flex:1;">
+          <span class="afa-value" id="f_special_afa_rate_value">0.0%</span>
+        </div>
+        <div class="afa-line">
+          <span class="flb">Sonder-AfA years</span><span class="fsp"></span><input id="f_special_afa_years" class="finp" type="number" value="4" min="1" max="4" step="1" style="width:40px;"><span class="funit">yr</span>
+        </div>
+        <div class="ferr" id="f_special_afa_error">Sonder-AfA years must be between 1 and 4.</div>
       </div>
       <div class="frow" style="flex-direction:column;align-items:stretch;gap:8px;">
         <span class="flb">Vacancy</span>
@@ -523,7 +551,9 @@ function localCompute(p) {
   const grEst=p.purchase_price*p.transfer_tax_pct/100, notary=p.purchase_price*p.notary_pct/100;
   const closing=grEst+notary, loan=p.purchase_price+closing-p.equity, ltv=loan/p.purchase_price;
   const landV=p.purchase_price*p.land_share_pct/100, afaBasis=p.purchase_price+closing-landV;
-  const afaRate=p.afa_rate_input??(p.condition==='newbuild'?0.03:0.02), annAfA=afaBasis*afaRate;
+  const afaRateRaw=p.afa_rate_input??(p.condition==='newbuild'?0.03:0.02);
+  const afaRate=afaRateRaw>1?afaRateRaw/100:afaRateRaw;
+  const annAfA=afaBasis*afaRate;
   const mRate=p.interest_rate/100/12, annMo=loan*(p.repayment_rate/100/12+mRate), annAnn=annMo*12;
   let rem=loan, cumCF=0;
   const yrs=[], iF={10:[-p.equity],15:[-p.equity],20:[-p.equity]};
@@ -682,16 +712,52 @@ function sw(btn,id) {
 }
 
 // ═══════════════════════════ FORM ═════════════════════════════════════════
-function collectForm() {
-  const afaRateEl=document.getElementById('f_afa_rate');
-  const afaRateRaw=afaRateEl.value.trim();
-  const afaRateInput=afaRateRaw===''?null:parseFloat(afaRateRaw);
-  if(afaRateRaw!==''&&(Number.isNaN(afaRateInput)||afaRateInput<0||afaRateInput>0.07)) {
-    throw new Error('AfA rate must be between 0 and 0.07, or left blank for the default rate.');
-  }
-  const v=document.querySelector('input[name="vac"]:checked');
-  return {address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:afaRateInput};
+function syncAfaSliderValues() {
+  document.getElementById('f_afa_rate_value').textContent=`${parseFloat(document.getElementById('f_afa_rate').value).toFixed(1)}%`;
+  document.getElementById('f_special_afa_rate_value').textContent=`${parseFloat(document.getElementById('f_special_afa_rate').value).toFixed(1)}%`;
 }
+
+function syncSpecialAfaUi() {
+  const enabled=document.getElementById('f_special_afa_enabled').checked;
+  const block=document.getElementById('specialAfaBlock');
+  block.style.display=enabled?'flex':'none';
+  document.getElementById('f_special_afa_rate').disabled=!enabled;
+  document.getElementById('f_special_afa_years').disabled=!enabled;
+  if(!enabled) document.getElementById('f_special_afa_error').style.display='none';
+}
+
+function validateAfaInputs() {
+  const enabled=document.getElementById('f_special_afa_enabled').checked;
+  const yearsRaw=document.getElementById('f_special_afa_years').value.trim();
+  const years=yearsRaw===''?NaN:parseInt(yearsRaw);
+  const yearsInvalid=enabled&&(Number.isNaN(years)||years<1||years>4);
+  document.getElementById('f_special_afa_error').style.display=yearsInvalid?'block':'none';
+  return !yearsInvalid;
+}
+
+function collectForm() {
+  if(!validateAfaInputs()) {
+    throw new Error('Please correct Sonder-AfA years (must be 1 to 4).');
+  }
+
+  const v=document.querySelector('input[name="vac"]:checked');
+  const specialEnabled=document.getElementById('f_special_afa_enabled').checked;
+  const payload={address:document.getElementById('f_address').value,sqm:parseFloat(document.getElementById('f_sqm').value)||0,year_built:parseInt(document.getElementById('f_yearbuilt').value)||1990,condition:document.getElementById('f_condition').value,purchase_price:parseFloat(document.getElementById('f_price').value)||0,equity:parseFloat(document.getElementById('f_equity').value)||0,interest_rate:parseFloat(document.getElementById('f_interest').value)||3.8,repayment_rate:parseFloat(document.getElementById('f_repayment').value)||2.0,transfer_tax_pct:parseFloat(document.getElementById('f_grunderwerb').value)||6.0,notary_pct:parseFloat(document.getElementById('f_notary').value)||2.0,agent_pct:0,land_share_pct:parseFloat(document.getElementById('f_landshare').value)||20,rent_monthly:parseFloat(document.getElementById('f_rent').value)||0,hausgeld_monthly:parseFloat(document.getElementById('f_hausgeld').value)||200,maintenance_nd:parseFloat(document.getElementById('f_maintenance').value)||1200,management_nd:parseFloat(document.getElementById('f_management').value)||600,rent_growth:parseFloat(document.getElementById('f_rentgrowth').value)||2.0,appreciation:parseFloat(document.getElementById('f_appreciation').value)||2.0,tax_rate:parseFloat(document.getElementById('f_taxrate').value)||44,vacancy_rate:v?parseFloat(v.id.replace('v','')):1,holding_years:parseInt(document.getElementById('f_horizon').value)||10,afa_method:document.getElementById('f_afa_method').value,afa_rate_input:Number(document.getElementById('f_afa_rate').value),special_afa_enabled:specialEnabled};
+
+  if(specialEnabled) {
+    payload.special_afa_rate_input=Number(document.getElementById('f_special_afa_rate').value);
+    payload.special_afa_years=parseInt(document.getElementById('f_special_afa_years').value, 10);
+  }
+
+  return payload;
+}
+
+document.getElementById('f_afa_rate').addEventListener('input', syncAfaSliderValues);
+document.getElementById('f_special_afa_rate').addEventListener('input', syncAfaSliderValues);
+document.getElementById('f_special_afa_enabled').addEventListener('change', ()=>{syncSpecialAfaUi();validateAfaInputs();});
+document.getElementById('f_special_afa_years').addEventListener('input', validateAfaInputs);
+syncAfaSliderValues();
+syncSpecialAfaUi();
 
 const STEPS=['Computing closing costs…','Building AfA schedule…','Running amortisation table…','Calculating taxable income…','Computing IRR…','Calling AI model…'];
 
